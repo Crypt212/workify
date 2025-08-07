@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -25,7 +26,7 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
             'contact_info' => 'required|string|max:255',
             'identity' => 'required|in:employer,seeker',
@@ -75,8 +76,33 @@ class AuthController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function login()
+    public function login(Request $request): RedirectResponse
     {
-        return "yay";
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+            'password' => 'required|min:8',
+        ], [
+            'email.required' => 'Please provide your email.',
+            'password.required' => 'You must set a password.',
+        ]);
+
+        if (Auth::attempt($validated)) {
+            $request->session()->regenerate();
+            return redirect()->route('dashboard');
+        }
+
+        throw ValidationException::withMessages([
+            'credentials' => "Sorry, incorrect credentials",
+        ]);
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login.page');
     }
 }

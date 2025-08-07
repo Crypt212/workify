@@ -33,6 +33,16 @@
             </div>
 
             <div class="mb-4">
+                <label for="contact_info" class="block text-gray-700 mb-2">Phone Number</label>
+                <input type="text" id="contact_info" name="contact_info" pattern="(\+?[0-9]{2,3})? ?([0-9]{4})? ?([0-9]{3})? ?([0-9]{4})?" required
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value="{{ old('contact_info') }}">
+                @error('contact_info')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label for="username" class="block text-gray-700 mb-2">Username</label>
                 <input type="text" id="username" name="username" required
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('password');
             $table->string('name');
             $table->string('contact_info')->nullable();
-            $table->enum('user_type', ['employer', 'seeker']);
+            $table->enum('identity', ['employer', 'seeker']);
             $table->timestamps();
         });
     }
