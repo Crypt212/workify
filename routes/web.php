@@ -4,11 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-=======
-use App\Http\Controllers\EmployerController;
 use App\Http\Controllers\SeekerExploreController; // ⬅ استدعاء الكنترولر الجديد
->>>>>>> f319e9e (search-seeker-page)
 
 Route::middleware('auth')->group(function () {
 
@@ -21,9 +17,13 @@ Route::middleware('auth')->group(function () {
     // Actual role-specific implementations (hidden from direct access)
     Route::prefix('employer')->middleware('employer')->group(function () {
         Route::get('/dashboard', fn() => view('employer.dashboard'))->name('employer.dashboard');
+
         Route::get('/posts', [PostController::class, 'index'])->name('employer.posts');
         Route::get('/posts/create', [PostController::class, 'create'])->name('employer.posts.create');
         Route::post('/posts', [PostController::class, 'store'])->name('employer.posts.store');
+
+        Route::get('/seeker-profile/{id}', [SeekerExploreController::class, 'showProfile'])->name('seekers.profile');
+        Route::get('/seekers-explore', [SeekerExploreController::class, 'exploreSeekers'])->name('seekers.explore');
     });
 
     Route::prefix('seeker')->middleware('seeker')->group(function () {
@@ -37,18 +37,8 @@ Route::get('/', function () {
         redirect()->route('dashboard');
 });
 
-<<<<<<< HEAD
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register.page');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login.page');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-=======
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// صفحة عرض بروفايل الـ seeker
-Route::get('/employer/seekers/{id}', [EmployerController::class, 'show'])->name('seekers.profile');
-
-// صفحة استكشاف الـ seekers مع البحث والفلاتر
-Route::get('/employer/seekers-explore', [SeekerExploreController::class, 'index'])->name('seekers.explore');
->>>>>>> f319e9e (search-seeker-page)
