@@ -20,7 +20,7 @@ Route::get('/dashboard', function () {
         return view("seeker.dashboard");
     elseif (Auth::user()->identity === "employer")
         return view("employer.dashboard");
-});
+})->name('dashboard');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
