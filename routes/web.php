@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EmployerController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register.page');
@@ -21,3 +22,5 @@ Route::get('/dashboard', function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/employer/seekers', [EmployerController::class, 'searchForm'])->name('seekers.searchForm');
+Route::get('/employer/seekers/search', [EmployerController::class, 'search'])->name('seekers.search');
