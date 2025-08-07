@@ -42,3 +42,5 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login.page');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+require __DIR__ . '/auth.php';

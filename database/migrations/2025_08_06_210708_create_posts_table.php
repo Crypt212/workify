@@ -11,7 +11,6 @@ return new class extends Migration {
             $table->foreignId('employer_id')->constrained('employers')->onDelete('cascade');
             $table->string('title');
             $table->text('description');
-            $table->string('tags')->nullable();
             $table->timestamps();
         });
     }
