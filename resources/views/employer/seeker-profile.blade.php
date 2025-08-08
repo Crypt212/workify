@@ -13,14 +13,14 @@
         <!-- Profile Card -->
         <div class="bg-white shadow-lg rounded-lg p-6">
             <div class="flex items-center space-x-6">
-                <img src="{{ $seeker->user->avatar ?? 'https://via.placeholder.com/150' }}" 
-                     alt="Profile Picture" 
+                <img src="{{ $seeker['avatar'] ?? 'https://via.placeholder.com/150' }}"
+                     alt="Profile Picture"
                      class="w-32 h-32 rounded-full border">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">{{ $seeker->user->name }}</h1>
-                    <p class="text-gray-600">{{ $seeker->role }}</p>
+                    <h1 class="text-2xl font-bold text-gray-800">{{ $seeker['name'] }}</h1>
+                    <p class="text-gray-600">{{ $seeker['role'] }}</p>
                     <p class="text-gray-500 mt-2">
-                        Email: {{ $seeker->user->email }}
+                        Email: {{ $seeker['email'] }}
                     </p>
                 </div>
             </div>
@@ -29,12 +29,8 @@
             <div class="mt-6">
                 <h2 class="text-xl font-semibold text-gray-700 mb-2">Skills</h2>
                 <div class="flex flex-wrap gap-2">
-                    @if($seeker->skills)
-                        @foreach(explode(',', $seeker->skills) as $skill)
-                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                                {{ trim($skill) }}
-                            </span>
-                        @endforeach
+                    @if ($seeker['skills'])
+                        {{ $seeker['skills'] }}
                     @else
                         <p class="text-gray-500">No skills listed</p>
                     @endif
@@ -43,7 +39,7 @@
 
             <!-- Back Button -->
             <div class="mt-8">
-                <a href="{{ route('seekers.explore') }}" 
+                <a href="{{ route('seekers.explore') }}"
                    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
                     ← Back to Explore
                 </a>

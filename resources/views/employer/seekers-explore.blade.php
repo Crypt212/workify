@@ -31,10 +31,10 @@
         <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             @forelse($seekers as $seeker)
                 <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
-                    <h2 class="text-xl font-semibold">{{ $seeker->user->name }}</h2>
-                    <p class="text-gray-600">{{ $seeker->role }}</p>
-                    <p class="text-sm text-gray-500 mt-2">{{ $seeker->skills }}</p>
-                    <a href="{{ url('/employer/seeker-profile/' . $seeker->id) }}"
+                    <h2 class="text-xl font-semibold">{{ $seeker['name'] }}</h2>
+                    <p class="text-gray-600">{{ $seeker['role'] }}</p>
+                    <p class="text-sm text-gray-500 mt-2">{{ $seeker['skills'] }}</p>
+                    <a href="{{ url('/employer/seeker-profile/' . $seeker['id']) }}"
                        class="inline-block mt-4 text-blue-500 hover:underline">View Profile</a>
                 </div>
             @empty
