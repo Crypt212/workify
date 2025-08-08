@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmployerController;
+use App\Http\Controllers\SeekerExploreController; // ⬅ استدعاء الكنترولر الجديد
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register.page');
@@ -22,5 +23,9 @@ Route::get('/dashboard', function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/employer/seekers', [EmployerController::class, 'searchForm'])->name('seekers.searchForm');
-Route::get('/employer/seekers/search', [EmployerController::class, 'search'])->name('seekers.search');
+
+// صفحة عرض بروفايل الـ seeker
+Route::get('/employer/seekers/{id}', [EmployerController::class, 'show'])->name('seekers.profile');
+
+// صفحة استكشاف الـ seekers مع البحث والفلاتر
+Route::get('/employer/seekers-explore', [SeekerExploreController::class, 'index'])->name('seekers.explore');

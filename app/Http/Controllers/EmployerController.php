@@ -29,4 +29,10 @@ class EmployerController extends Controller
 
         return view('employer.seekers-search', compact('seekers'));
     }
+    public function show($id)
+{
+    $seeker = \App\Models\Seeker::with('user')->findOrFail($id);
+    return view('employer.seeker-profile', compact('seeker'));
+}
+
 }
