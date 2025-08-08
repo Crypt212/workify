@@ -4,20 +4,32 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register.page');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::middleware('auth')->group(function () {
 
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login.page');
-    Route::get('/', [AuthController::class, 'showLogin'])->name('login.page');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::middleware('user_type')->group(function () {
+        Route::get('/dashboard', fn() => view('placeholder'))->name('dashboard');
+    });
+
+    // Actual role-specific implementations (hidden from direct access)
+    Route::prefix('employer')->middleware('employer')->group(function () {
+        Route::get('/dashboard', fn() => view('employer.dashboard'))->name('employer.dashboard');
+    });
+
+    Route::prefix('seeker')->middleware('seeker')->group(function () {
+        Route::get('/dashboard', fn() => view('seeker.dashboard'))->name('seeker.dashboard');
+    });
 });
 
-Route::get('/dashboard', function () {
-    if (Auth::user()->identity === "seeker")
-        return view("seeker.dashboard");
-    elseif (Auth::user()->identity === "employer")
-        return view("employer.dashboard");
-})->name('dashboard');
+Route::get('/', function () {
+    return Auth::guest() ?
+        redirect()->route('login.page') :
+        redirect()->route('dashboard');
+});
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register.page');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login.page');
+Route::post('/login', [AuthController::class, 'login'])->name('login');

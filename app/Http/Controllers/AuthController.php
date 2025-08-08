@@ -12,13 +12,21 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function showRegister(): View
+    public function showRegister(): View | RedirectResponse
     {
+        if (!Auth::guest()) {
+            return redirect()->route('dashboard');
+        }
+
         return view('auth.register');
     }
 
-    public function showLogin(): View
+    public function showLogin(): View | RedirectResponse
     {
+        if (!Auth::guest()) {
+            return redirect()->route('dashboard');
+        }
+
         return view('auth.login');
     }
 
@@ -76,7 +84,7 @@ class AuthController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function login(Request $request): RedirectResponse
+    public function login(Request $request)
     {
         $validated = $request->validate([
             'email' => 'required|email|max:255',
@@ -103,6 +111,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login.page');
+        return redirect()->route("login.page");
     }
 }
