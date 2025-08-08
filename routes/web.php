@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeekerExploreController;
@@ -17,6 +18,10 @@ Route::middleware('auth')->group(function () {
     // Employer pages
     Route::prefix('employer')->middleware('employer')->group(function () {
         Route::get('/dashboard', fn() => view('employer.dashboard'))->name('employer.dashboard');
+
+        Route::get('/posts', [PostController::class, 'index'])->name('employer.posts');
+        Route::get('/posts/create', [PostController::class, 'create'])->name('employer.posts.create');
+        Route::post('/posts', [PostController::class, 'store'])->name('employer.posts.store');
 
         Route::get('/seeker-profile/{id}', [SeekerExploreController::class, 'showProfile'])->name('seekers.profile');
         Route::get('/seekers-explore', [SeekerExploreController::class, 'exploreSeekers'])->name('seekers.explore');
