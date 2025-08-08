@@ -4,11 +4,42 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Seeker;
+use Illuminate\View\View;
 
 class SeekerExploreController extends Controller
 {
+    /* // صفحة الفورم */
+    /* public function searchForm(): View */
+    /* { */
+    /*     return view('employer.seekers-search'); */
+    /* } */
+    /**/
+    /* // تنفيذ البحث */
+    /* public function search(Request $request): View */
+    /* { */
+    /*     $query = User::query()->where('type', 'seeker'); */
+    /**/
+    /*     if ($request->filled('name')) { */
+    /*         $query->where('name', 'like', '%' . $request->name . '%'); */
+    /*     } */
+    /**/
+    /*     if ($request->filled('skills')) { */
+    /*         $query->where('skills', 'like', '%' . $request->skills . '%'); */
+    /*     } */
+    /**/
+    /*     $seekers = $query->get(); */
+    /**/
+    /*     return view('employer.seekers-search', compact('seekers')); */
+    /* } */
+
+    public function showProfile($id): View
+    {
+        $seeker = Seeker::with('user')->findOrFail($id);
+        return view('employer.seeker-profile', compact('seeker'));
+    }
+
     // عرض صفحة الاستكشاف مع البحث
-    public function index(Request $request)
+    public function exploreSeekers(Request $request): View
     {
         $query = Seeker::with('user'); // نجلب الـ seekers مع بيانات الـ user المرتبطة
 
