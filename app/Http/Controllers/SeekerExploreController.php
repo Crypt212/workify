@@ -34,14 +34,20 @@ class SeekerExploreController extends Controller
 
     public function showProfile($id): View
     {
-        $seeker = Seeker::with('user')->findOrFail($id);
+        $seeker_obj = Seeker::with('user')->with("skills")->findOrFail($id);
+        $seeker = [
+            "name" => $seeker_obj->user->name,
+            "email" => $seeker_obj->user->email,
+            "role" => $seeker_obj->role,
+            "skills" => $seeker_obj->skills()->pluck('name')->implode(", "),
+        ];
         return view('employer.seeker-profile', compact('seeker'));
     }
 
     // عرض صفحة الاستكشاف مع البحث
     public function exploreSeekers(Request $request): View
     {
-        $query = Seeker::with('user'); // نجلب الـ seekers مع بيانات الـ user المرتبطة
+        $query = Seeker::with(['user', 'skills']); // نجلب الـ seekers مع بيانات الـ user المرتبطة
 
         // فلترة بالاسم
         if ($request->filled('name')) {
@@ -52,7 +58,14 @@ class SeekerExploreController extends Controller
 
         // فلترة بالمهارات
         if ($request->filled('skills')) {
-            $query->where('skills', 'like', '%' . $request->skills . '%');
+            $skills_search = $request->skills;
+            $skills_search = explode(',', $skills_search);
+
+            foreach ($skills_search as $searchTerm) {
+                $query->whereHas('skills', function ($query) use ($searchTerm) {
+                    $query->where('name', 'like', '%' . $searchTerm . '%');
+                });
+            }
         }
 
         // فلترة بالدور/المسمى الوظيفي
@@ -60,7 +73,16 @@ class SeekerExploreController extends Controller
             $query->where('role', 'like', '%' . $request->role . '%');
         }
 
-        $seekers = $query->get();
+        $seekers = [];
+        foreach ($query->get() as $seeker_obj) {
+            $seekers[] = [
+                "id" => $seeker_obj->id,
+                "name" => $seeker_obj->user->name,
+                "email" => $seeker_obj->user->email,
+                "role" => $seeker_obj->role,
+                "skills" => $seeker_obj->skills()->pluck('name')->implode(", "),
+            ];
+        }
 
         return view('employer.seekers-explore', compact('seekers'));
     }
