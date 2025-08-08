@@ -4,11 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-use App\Http\Controllers\SeekerExploreController; // ⬅ استدعاء الكنترولر الجديد
-=======
 use App\Http\Controllers\SeekerExploreController;
->>>>>>> aed4245 (fixed and resolved conflicts)
 
 Route::middleware('auth')->group(function () {
 
@@ -22,13 +18,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('employer')->middleware('employer')->group(function () {
         Route::get('/dashboard', fn() => view('employer.dashboard'))->name('employer.dashboard');
 
-<<<<<<< HEAD
         Route::get('/posts', [PostController::class, 'index'])->name('employer.posts');
         Route::get('/posts/create', [PostController::class, 'create'])->name('employer.posts.create');
         Route::post('/posts', [PostController::class, 'store'])->name('employer.posts.store');
 
-=======
->>>>>>> aed4245 (fixed and resolved conflicts)
         Route::get('/seeker-profile/{id}', [SeekerExploreController::class, 'showProfile'])->name('seekers.profile');
         Route::get('/seekers-explore', [SeekerExploreController::class, 'exploreSeekers'])->name('seekers.explore');
     });

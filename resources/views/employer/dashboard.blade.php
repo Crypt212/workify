@@ -19,6 +19,10 @@
                 class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
                 View & Create Job Posts
             </a>
+            <a href="{{ route('seekers.explore') }}"
+                class="bg-blue-600 text-white py-2 px-4 rounded-lg ml-2 hover:bg-blue-700 transition">
+                Explore Job Seekers
+            </a>
         </div>
 
         <form method="POST" action="{{ route('logout') }}">
