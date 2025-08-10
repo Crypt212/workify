@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Seeker extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'role',
         'user_id',
@@ -18,9 +22,11 @@ class Seeker extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function skills(): HasMany
+    public function skills(): BelongsToMany
     {
-        return $this->hasMany(Skill::class);
+        return $this->belongsToMany(Skill::class)
+            ->withPivot('proficiency')
+            ->withTimestamps();
     }
 
     public function applications(): HasMany

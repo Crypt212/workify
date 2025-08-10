@@ -1,62 +1,44 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Employer;
 
 use Illuminate\Http\Request;
 use App\Models\Seeker;
 use Illuminate\View\View;
 
-class SeekerExploreController extends Controller
+class SeekersController
 {
-    /* // صفحة الفورم */
-    /* public function searchForm(): View */
-    /* { */
-    /*     return view('employer.seekers-search'); */
-    /* } */
-    /**/
-    /* // تنفيذ البحث */
-    /* public function search(Request $request): View */
-    /* { */
-    /*     $query = User::query()->where('type', 'seeker'); */
-    /**/
-    /*     if ($request->filled('name')) { */
-    /*         $query->where('name', 'like', '%' . $request->name . '%'); */
-    /*     } */
-    /**/
-    /*     if ($request->filled('skills')) { */
-    /*         $query->where('skills', 'like', '%' . $request->skills . '%'); */
-    /*     } */
-    /**/
-    /*     $seekers = $query->get(); */
-    /**/
-    /*     return view('employer.seekers-search', compact('seekers')); */
-    /* } */
-
-    public function showProfile($id): View
+    public function profile($id): View
     {
         $seeker_obj = Seeker::with('user')->with("skills")->findOrFail($id);
+
+        $skills = [];
+        foreach($seeker_obj->skills as $skill) {
+            $skills[] = [
+                'name' => $skill->name,
+                'proficiency' => $skill->pivot->proficiency,
+            ];
+        }
+
         $seeker = [
             "name" => $seeker_obj->user->name,
             "email" => $seeker_obj->user->email,
             "role" => $seeker_obj->role,
-            "skills" => $seeker_obj->skills()->pluck('name')->implode(", "),
+            "skills" => $skills
         ];
         return view('employer.seeker-profile', compact('seeker'));
     }
 
-    // عرض صفحة الاستكشاف مع البحث
-    public function exploreSeekers(Request $request): View
+    public function explore(Request $request): View
     {
-        $query = Seeker::with(['user', 'skills']); // نجلب الـ seekers مع بيانات الـ user المرتبطة
+        $query = Seeker::with(['user', 'skills']);
 
-        // فلترة بالاسم
         if ($request->filled('name')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->name . '%');
             });
         }
 
-        // فلترة بالمهارات
         if ($request->filled('skills')) {
             $skills_search = $request->skills;
             $skills_search = explode(',', $skills_search);
@@ -68,7 +50,6 @@ class SeekerExploreController extends Controller
             }
         }
 
-        // فلترة بالدور/المسمى الوظيفي
         if ($request->filled('role')) {
             $query->where('role', 'like', '%' . $request->role . '%');
         }
@@ -80,7 +61,7 @@ class SeekerExploreController extends Controller
                 "name" => $seeker_obj->user->name,
                 "email" => $seeker_obj->user->email,
                 "role" => $seeker_obj->role,
-                "skills" => $seeker_obj->skills()->pluck('name')->implode(", "),
+                "skills" => $seeker_obj->skills()->pluck('name'),
             ];
         }
 

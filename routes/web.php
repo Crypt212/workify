@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SeekerExploreController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Employer;
+use App\Http\Controllers\Seeker;
 
 Route::middleware('auth')->group(function () {
 
@@ -18,12 +18,12 @@ Route::middleware('auth')->group(function () {
     Route::prefix('employer')->middleware('employer')->group(function () {
         Route::get('/dashboard', fn() => view('employer.dashboard'))->name('employer.dashboard');
 
-        Route::get('/posts', [PostController::class, 'index'])->name('employer.posts');
-        Route::get('/posts/create', [PostController::class, 'create'])->name('employer.posts.create');
-        Route::post('/posts', [PostController::class, 'store'])->name('employer.posts.store');
+        Route::get('/posts-explore', [Employer\PostsController::class, 'explore'])->name('employer.posts');
+        Route::get('/post/create', [Employer\PostsController::class, 'showCreate'])->name('employer.posts.create');
+        Route::post('/post/create', [Employer\PostsController::class, 'store'])->name('employer.posts.store');
 
-        Route::get('/seeker-profile/{id}', [SeekerExploreController::class, 'showProfile'])->name('seekers.profile');
-        Route::get('/seekers-explore', [SeekerExploreController::class, 'exploreSeekers'])->name('seekers.explore');
+        Route::get('/seeker-profile/{id}', [Employer\SeekersController::class, 'profile'])->name('seekers.profile');
+        Route::get('/seekers-explore', [Employer\SeekersController::class, 'explore'])->name('seekers.explore');
     });
 
     Route::prefix('seeker')->middleware('seeker')->group(function () {
@@ -42,5 +42,3 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login.page');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-
-require __DIR__ . '/auth.php';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-class AuthController extends Controller
+class AuthController
 {
     public function showRegister(): View | RedirectResponse
     {
@@ -71,12 +72,17 @@ class AuthController extends Controller
             $seeker = $user->seeker()->create([
                 'role' => $request['role'] ?? ''
             ]);
-            if (!empty($request['skills'])) {
-                $skills = array_map('trim', explode(',', $request['skills']));
 
-                $seeker->skills()->createMany(
-                    array_map(fn($skill) => ['name' => $skill], $skills)
-                );
+            if (!empty($request['skills'])) {
+                $skill_names = array_map('trim', explode(',', $request['skills']));
+
+                foreach ($skill_names as $skill_name) {
+                    if ($skill_name == "") continue;
+                    $skill = Skill::query()->firstOrCreate(['name' => $skill_name]);
+                    $seeker->skills()->attach($skill->id, [
+                        'proficiency' => 'expert'
+                    ]);
+                }
             }
         }
 

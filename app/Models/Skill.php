@@ -2,19 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Skill extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
-        'seeker_id',
         // add any other fields you want to be mass assignable
     ];
-    public function seeker(): BelongsTo
+
+    public function seekers(): BelongsToMany
     {
-        return $this->belongsTo(Seeker::class);
+        return $this->belongsToMany(Seeker::class)
+            ->withPivot('proficiency')
+            ->withTimestamps();
     }
 
+    public function posts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class)
+            ->withTimestamps();
+    }
 }
