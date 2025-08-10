@@ -10,8 +10,7 @@ return new class extends Migration {
         Schema::create('seekers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('role');
-            $table->text('skills')->nullable();
+            $table->string('role')->nullable();
             $table->timestamps();
         });
     }

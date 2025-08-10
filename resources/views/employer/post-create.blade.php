@@ -42,8 +42,17 @@
                 <label for="tags" class="block text-gray-700 mb-2">Tags (comma-separated)</label>
                 <input type="text" id="tags" name="tags"
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value="{{ old('tags') }}" placeholder="e.g., php, laravel, full-time">
+                    value="{{ old('tags') }}" placeholder="e.g., full-time, remote, Siniors">
                 @error('tags')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="skills" class="block text-gray-700 mb-2">Skills (comma-separated)</label>
+                <input type="text" id="skills" name="skills"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value="{{ old('skills') }}" placeholder="e.g., PHP, Laravel, Communication Skills">
+                @error('skills')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
