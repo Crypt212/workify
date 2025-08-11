@@ -8,9 +8,11 @@ use Illuminate\View\View;
 
 class SeekersController
 {
-    public function profile($id): View
+    public function profile($username): View
     {
-        $seeker_obj = Seeker::with('user')->with("skills")->findOrFail($id);
+        $seeker_obj = Seeker::query()->with('skills')->with('user')->whereHas('user', function ($query) use ($username) {
+            $query->where('username', $username);
+        })->first();
 
         $skills = [];
         foreach($seeker_obj->skills as $skill) {
@@ -22,6 +24,7 @@ class SeekersController
 
         $seeker = [
             "name" => $seeker_obj->user->name,
+            "username" => $seeker_obj->user->username,
             "email" => $seeker_obj->user->email,
             "role" => $seeker_obj->role,
             "skills" => $skills
@@ -58,6 +61,7 @@ class SeekersController
         foreach ($query->get() as $seeker_obj) {
             $seekers[] = [
                 "id" => $seeker_obj->id,
+                "username" => $seeker_obj->user->username,
                 "name" => $seeker_obj->user->name,
                 "email" => $seeker_obj->user->email,
                 "role" => $seeker_obj->role,
@@ -65,6 +69,6 @@ class SeekersController
             ];
         }
 
-        return view('employer.seekers-explore', compact('seekers'));
+        return view('employer.seekers', compact('seekers'));
     }
 }

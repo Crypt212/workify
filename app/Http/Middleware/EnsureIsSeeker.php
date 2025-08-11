@@ -17,7 +17,7 @@ class EnsureIsSeeker
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::user()->identity !== 'seeker') {
-            abort(403, 'Employer access only');
+            abort(403, 'Seeker access only');
         }
         return $next($request);
     }
