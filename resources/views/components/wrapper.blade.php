@@ -9,7 +9,10 @@
 </head>
 
 <body class="bg-gray-100 min-h-screen p-4">
-    {{ $slot }}
+    <x-header />
+    <div class="w-full max-w-2xl m-auto">
+        {{ $slot }}
+    </div>
 </body>
 
 </html>

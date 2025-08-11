@@ -18,18 +18,18 @@ class PostsController
 
         $posts = [];
 
-        foreach(Post::query()->where('employer_id', $employer->id)->get() as $post) {
+        foreach (Post::query()->where('employer_id', $employer->id)->get() as $post) {
 
             $posts[] = [
-            'title' => $post->title,
-            'description' => $post->description,
-            'tags' => array_map(fn ($elm) => $elm['name'], $post->tags->toArray()),
-            'skills' => array_map(fn ($elm) => $elm['name'], $post->skills->toArray()),
-            'created_at' => $post->created_at->format('M d, Y'),
+                'title' => $post->title,
+                'description' => $post->description,
+                'tags' => array_map(fn($elm) => $elm['name'], $post->tags->toArray()),
+                'skills' => array_map(fn($elm) => $elm['name'], $post->skills->toArray()),
+                'created_at' => $post->created_at->format('M d, Y'),
             ];
         }
 
-        return view('employer.posts-explore', compact('posts'));
+        return view('employer.posts', compact('posts'));
     }
 
     public function showCreate(): View
@@ -37,13 +37,14 @@ class PostsController
         return view('employer.post-create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request) //: RedirectResponse
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'tags' => 'nullable|string',
-            'skills' => 'nullable|string',
+            'tags' => 'required|json',
+            'skills' => 'required|json',
         ]);
 
         $employer = Auth::user()->employer;
@@ -55,19 +56,19 @@ class PostsController
         ]);
 
         if (!empty($request->tags)) {
-            $tags = array_map('trim', explode(',', $request->tags));
+            $tags = json_decode($request->tags);
             foreach ($tags as $tag) {
-                if ($tag == "") continue;
-                $post_tag = Tag::query()->firstOrCreate(['name' => $tag,]);
+                if ($tag->name == "") continue;
+                $post_tag = Tag::query()->firstOrCreate(['name' => $tag->name,]);
                 $post->tags()->attach($post_tag->id);
             }
         }
 
         if (!empty($request->skills)) {
-            $skills = array_map('trim', explode(',', $request->skills));
+            $skills = json_decode($request->skills);
             foreach ($skills as $skill) {
-                if ($skill == "") continue;
-                $post_skill = Skill::query()->firstOrCreate(['name' => $skill,]);
+                if ($skill->name == "") continue;
+                $post_skill = Skill::query()->firstOrCreate(['name' => $skill->name,]);
                 $post->skills()->attach($post_skill->id);
             }
         }
