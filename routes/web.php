@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Employer;
 use App\Http\Controllers\Seeker;
+use App\Http\Controllers\SeekerInboxController;
+use App\Http\Controllers\SeekerProfileController;
 
 Route::middleware('auth')->group(function () {
 
@@ -35,6 +37,13 @@ Route::get('/', function () {
     return Auth::guest() ?
         redirect()->route('login.page') :
         redirect()->route('dashboard');
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/seeker/inbox', [SeekerInboxController::class, 'index'])->name('seeker.inbox');
+
+    Route::get('/seeker/profile/email/{email}', [SeekerProfileController::class, 'showByEmail'])->name('seekers.profile.byEmail');
 });
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register.page');
