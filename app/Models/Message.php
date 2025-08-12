@@ -7,15 +7,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Message extends Model
 {
-    protected $fillable = ['seeker_id', 'employer_id', 'body'];
+    protected $fillable = [
+        'title',
+        'body',
+        'sender_id',
+        'receiver_id',
+        // add any other fields you want to be mass assignable
+    ];
 
-    public function employer(): BelongsTo
+    public function sender(): BelongsTo
     {
-        return $this->belongsTo(Employer::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function seeker(): BelongsTo
+    public function receiver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'seeker_id');
+        return $this->belongsTo(User::class);
     }
 }

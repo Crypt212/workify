@@ -1,7 +1,7 @@
 <x-wrapper>
 
-<div class="max-w-5xl mx-auto py-8">
-    <h1 class="text-3xl font-bold mb-6">My Inbox</h1>
+    <div class="max-w-5xl mx-auto py-8">
+        <h1 class="text-3xl font-bold mb-6">My Inbox</h1>
 
     <x-filter :filters="[
     'title' => [
@@ -13,21 +13,24 @@
     'sender_email' => [
         'label' => 'Email Address'
     ],
-    'sender_organization_name' => [
-        'label' => 'Organization Name'
+    'sender_role' => [
+        'label' => 'Role'
+    ],
+    'sender_skills' => [
+        'label' => 'Skills'
     ],
     'sender_phone' => [
         'label' => 'Phone Number'
     ],
 ]" />
 
-    <!-- Pagination -->
-    <div class="mt-6">
-        {{ $messages->withQueryString()->links('components/paginator') }}
-    </div>
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $messages->withQueryString()->links('components/paginator') }}
+        </div>
 
-    <!-- Messages -->
-    @foreach($messages as $message)
+        <!-- Messages -->
+        @foreach($messages as $message)
         <div class="bg-white p-5 mb-4 rounded-lg shadow border border-gray-200">
             <!-- Header -->
             <div class="flex justify-between items-center border-b pb-3 mb-3">
@@ -36,18 +39,19 @@
                     <p class="text-sm text-gray-500">{{ $message->sender->name }}</p>
                     <p class="text-sm text-gray-500">{{ $message->sender->email }}</p>
                 </div>
-                <a href="{{ route('seeker.employer-profile', ['username' => $message->sender_username]) }}" class="text-blue-600 hover:underline">View Profile</a>
+                <a href="{{ route('employer.seeker-profile', ['username' => $message->sender_username]) }}"
+                    class="text-blue-600 hover:underline">View Profile</a>
 
             </div>
             <!-- Body -->
             <p class="text-gray-700 mb-3">{{ Str::limit($message->body, 150) }}</p>
             <p class="text-xs text-gray-400">Sent: {{ $message->created_at->format('Y-m-d H:i') }}</p>
         </div>
-    @endforeach
+        @endforeach
 
-    <!-- Pagination -->
-    <div class="mt-6">
-        {{ $messages->withQueryString()->links('components/paginator') }}
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $messages->withQueryString()->links('components/paginator') }}
+        </div>
     </div>
-</div>
 </x-wrapper>

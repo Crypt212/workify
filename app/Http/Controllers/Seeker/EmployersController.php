@@ -1,30 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\Employer;
+namespace App\Http\Controllers\Seeker;
 
 use App\Models\Message;
 use Illuminate\Http\Request;
-use App\Models\Seeker;
+use App\Models\Employer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class SeekersController
+class EmployersController
 {
     public function profile(string $username): View
     {
-        $seeker = Seeker::query()->with('skills')->with('user')->whereHas('user', function ($query) use ($username) {
+        $employer = Employer::query()->with('user')->whereHas('user', function ($query) use ($username) {
             $query->where('username', $username);
         })->first();
 
-        $skills = [];
-        foreach ($seeker->skills as $skill) {
-            $skills[] = [
-                'name' => $skill->name,
-                'proficiency' => $skill->pivot->proficiency,
-            ];
-        }
-
-        return view('employer.seeker-profile', compact('seeker'));
+        return view('seeker.employer-profile', compact('employer'));
     }
 
     public function sendMessage(Request $request): RedirectResponse
@@ -41,16 +33,16 @@ class SeekersController
             'sender_id' => $request->sender_id,
         ]);
 
-        $receiver_username = Seeker::query()->whereHas('user', function ($query) use ($request) {
+        $receiver_username = Employer::query()->whereHas('user', function ($query) use ($request) {
             $query->where('id', $request->receiver_id);
         })->first()->user->username;
 
-        return redirect()->route("employer.seeker-profile", $receiver_username);
+        return redirect()->route("seeker.employer-profile", $receiver_username);
     }
 
     public function explore(Request $request): View
     {
-        $query = Seeker::with(['user', 'skills']);
+        $query = Employer::with('user');
 
         if ($request->has('filter')) {
             if (isset($request->filter['name'])) {
@@ -67,20 +59,9 @@ class SeekersController
                 });
             }
 
-            if (isset($request->filter['role'])) {
-                $search_term = $request->filter['role'];
-                $query->where('role', 'like', "%{$search_term}%");
-            }
-
-            if (isset($request->filter['skills'])) {
-                $search_term = $request->filter['skills'];
-                $search_skills = array_map('trim', explode(',', $search_term));
-
-                foreach ($search_skills as $search_skill) {
-                    $query->whereHas('skills', function ($query) use ($search_skill) {
-                        $query->where('name', 'like', "%{$search_skill}%");
-                    });
-                }
+            if (isset($request->filter['organization_name'])) {
+                $search_term = $request->filter['organization_name'];
+                $query->where('organization_name', 'like', "%{$search_term}%");
             }
 
             if (isset($request->filter['phone'])) {
@@ -91,8 +72,8 @@ class SeekersController
             }
         }
 
-        $seekers = $query->paginate(5);
+        $employers = $query->paginate(5);
 
-        return view('employer.seekers', compact('seekers'));
+        return view('seeker.employers', compact('employers'));
     }
 }

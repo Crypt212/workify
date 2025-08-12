@@ -21,31 +21,90 @@
                 </div>
             </div>
 
-            <!-- Dashboard button -->
-            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Dashboard
-            </a>
+            <div class="w-64 flex">
 
-            @if ( auth()->user()->identity == 'employer' )
+                <x-dropdown trigger="Navigations">
 
-            <!-- Post Explore button -->
-            <a href="{{ route('posts') }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                My Posts
-            </a>
+                    <div class="flex mx-1">
 
-            <!-- Post Explore button -->
-            <a href="{{ route('seekers') }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Find Seekers
-            </a>
+                        @if ( auth()->user()->identity == 'employer' )
 
-            @elseif ( auth()->user()->identity == 'seeker' )
+                        <div class="flex-col w-full">
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('dashboard') }}" class="w-full">
+                                    Dashboard
+                                </a>
+                            </div>
 
-            @endif
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('inbox') }}" class="w-full">
+                                    My Inbox
+                                </a>
+                            </div>
+
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('posts') }}" class="w-full">
+                                    My Job Posts
+                                </a>
+                            </div>
+
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('seekers') }}" class="w-full">
+                                    Find Seekers
+                                </a>
+                            </div>
+                        </div>
+
+                        @elseif ( auth()->user()->identity == 'seeker' )
+
+                        <div class="flex-col w-full">
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('dashboard') }}" class="w-full">
+                                    Dashboard
+                                </a>
+                            </div>
+
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('inbox') }}" class="w-full">
+                                    My Inbox
+                                </a>
+                            </div>
+
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('posts') }}" class="w-full">
+                                    Find Jobs
+                                </a>
+                            </div>
+
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('employers') }}" class="w-full">
+                                    Find Employers
+                                </a>
+                            </div>
+                        </div>
+
+
+                        @endif
+
+                    </div>
+
+                </x-dropdown>
+
+            </div>
 
             <!-- Logout button -->
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <button type="submit"
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                     Logout
                 </button>
             </form>
