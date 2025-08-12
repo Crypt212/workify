@@ -10,7 +10,8 @@ class Application extends Model
     protected $fillable = [
         'seeker_id',
         'post_id',
-        // add any other fields you want to be mass assignable
+        'employer_id',
+        'status',
     ];
 
     public function seeker(): BelongsTo
@@ -21,5 +22,10 @@ class Application extends Model
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
+    }
+
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(Employer::class);
     }
 }
