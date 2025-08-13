@@ -30,7 +30,6 @@ class ApplicationFactory extends Factory
         return [
             'post_id'       => Post::factory(),
             'seeker_id'     => Seeker::factory(),
-            'employer_id'   => Employer::factory(),
         ];
     }
 
@@ -48,15 +47,6 @@ class ApplicationFactory extends Factory
         return $this->state(function (array $attributes) use ($seeker) {
             return [
                 'seeker_id' => $seeker->id,
-            ];
-        });
-    }
-
-    public function forEmployer($employer)
-    {
-        return $this->state(function (array $attributes) use ($employer) {
-            return [
-                'employer_id' => $employer->id,
             ];
         });
     }

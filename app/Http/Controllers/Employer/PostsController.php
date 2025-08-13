@@ -23,9 +23,23 @@ class PostsController
                 $search_term = $request->filter['title'];
                 $query->where('title', 'like', "%{$search_term}%");
             }
-            if (isset($request->filter['description'])) {
-                $search_term = $request->filter['description'];
-                $query->where('description', 'like', "%{$search_term}%");
+            if (isset($request->filter['tags'])) {
+                $search_terms = array_map('trim', explode(',', $request->filter['tags']));
+
+                foreach($search_terms as $search_term) {
+                    $query->whereHas('tags', function ($query) use ($search_term) {
+                        $query->where('name', 'like', "%{$search_term}%");
+                    });
+                }
+            }
+            if (isset($request->filter['skills'])) {
+                $search_terms = array_map('trim', explode(',', $request->filter['skills']));
+
+                foreach($search_terms as $search_term) {
+                    $query->whereHas('skills', function ($query) use ($search_term) {
+                        $query->where('name', 'like', "%{$search_term}%");
+                    });
+                }
             }
         }
 

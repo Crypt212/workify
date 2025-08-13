@@ -14,8 +14,6 @@ class PostsController
 {
     public function explore(Request $request): View
     {
-        $employer = Auth::user()->employer;
-
         $query = Post::query()->with('employer.user');
 
         if ($request->has('filter')) {
@@ -80,52 +78,33 @@ class PostsController
             $post->tags = array_map(fn($elm) => $elm['name'], $post->tags->toArray());
             $post->skills = array_map(fn($elm) => $elm['name'], $post->skills->toArray());
             $post->created_at = $post->created_at->format('Y-m-d H:i:s');
+            $post->applied = $post->applications()->whereHas('seeker', function ($query) {
+                $query->whereHas('user', function ($query) {
+                    $query->where('id', Auth::user()->id);
+                });
+            })->first();
         }
 
         return view('seeker.posts', compact('posts'));
     }
 
-    public function showCreate(): View
+    public function apply(Request $request): RedirectResponse
     {
-        return view('employer.post-create');
+        $post = Post::query()->with(['employer', 'applications'])->where('id', $request->post_id)->first();
+        $post->applications()->create([
+            'seeker_id' => Auth::user()->seeker->id,
+            'post_id' => $post->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Applied to job post.');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function unapply(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'tags' => 'nullable|string',
-            'tags' => 'required|json',
-            'skills' => 'required|json',
-        ]);
+        $post = Post::query()->with(['employer', 'applications'])->where('id', $request->post_id)->first();
+        $application = $post->applications()->where('seeker_id', Auth::user()->seeker->id)->first();
+        $application->delete();
 
-        $employer = Auth::user()->employer;
-
-        $post = Post::query()->create([
-            'employer_id' => $employer->id,
-            'title' => $request->title,
-            'description' => $request->description,
-        ]);
-
-        if (!empty($request->tags)) {
-            $tags = json_decode($request->tags);
-            foreach ($tags as $tag) {
-                if ($tag->name == "") continue;
-                $post_tag = Tag::query()->firstOrCreate(['name' => $tag->name,]);
-                $post->tags()->attach($post_tag->id);
-            }
-        }
-
-        if (!empty($request->skills)) {
-            $skills = json_decode($request->skills);
-            foreach ($skills as $skill) {
-                if ($skill->name == "") continue;
-                $post_skill = Skill::query()->firstOrCreate(['name' => $skill->name,]);
-                $post->skills()->attach($post_skill->id);
-            }
-        }
-
-        return redirect()->route('employer.posts')->with('success', 'Post created successfully.');
+        return redirect()->back()->with('success', 'Unqapplied to job post.');
     }
 }

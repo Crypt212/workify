@@ -15,6 +15,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/posts', fn() => view('placeholder'))->name('posts');
         Route::get('/post/create', fn() => view('placeholder'))->name('posts.create');
+        Route::post('/post/apply', fn() => view('placeholder'))->name('post.apply');
+        Route::post('/post/unapply', fn() => view('placeholder'))->name('post.unapply');
+
+        Route::get('/applications', fn() => view('placeholder'))->name('applications');
 
         Route::get('/seeker-profile/', fn() => view('placeholder'))->name('seekers');
         Route::get('/employer-profile/', fn() => view('placeholder'))->name('employers');
@@ -34,7 +38,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/posts', [Employer\PostsController::class, 'explore'])->name('employer.posts');
         Route::get('/post/create', [Employer\PostsController::class, 'showCreate'])->name('employer.posts.create');
         Route::post('/post/create', [Employer\PostsController::class, 'store'])->name('employer.posts.store');
-        Route::delete('/post/delete/{id}', [Employer\PostsController::class, 'destroy'])->name('employer.posts.destroy');
+        Route::post('/post/delete', [Employer\PostsController::class, 'destroy'])->name('employer.posts.destroy');
+
+        Route::get('/post/applications', [Employer\PostsController::class, 'explore'])->name('employer.applications');
+
+        Route::get('/applications', [Employer\ApplicationsController::class, 'explore'])->name('employer.applications');
+        Route::post('/application/accept', [Employer\ApplicationsController::class, 'accept'])->name('employer.application.accept');
+        Route::post('/application/reject', [Employer\ApplicationsController::class, 'reject'])->name('employer.application.reject');
 
         Route::get('/seeker-profile/', [Employer\SeekersController::class, 'explore'])->name('employer.seekers');
         Route::get('/seeker-profile/{username}', [Employer\SeekersController::class, 'profile'])->name('employer.seeker-profile');
@@ -47,9 +57,12 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/inbox', [Seeker\InboxController::class, 'index'])->name('seeker.inbox');
 
+        Route::get('/applications', [Seeker\ApplicationsController::class, 'explore'])->name('seeker.applications');
+        Route::post('/application/unapply', [Seeker\ApplicationsController::class, 'unapply'])->name('seeker.application.unapply');
+
         Route::get('/posts', [Seeker\PostsController::class, 'explore'])->name('seeker.posts');
-        Route::get('/posts/apply', [Seeker\PostsController::class, 'apply'])->name('seeker.posts.apply');
-        Route::get('/posts/unapply', [Seeker\PostsController::class, 'unapply'])->name('seeker.posts.unapply');
+        Route::post('/post/apply', [Seeker\PostsController::class, 'apply'])->name('seeker.post.apply');
+        Route::post('/post/unapply', [Seeker\PostsController::class, 'unapply'])->name('seeker.post.unapply');
 
         Route::get('/employer-profile/', [Seeker\EmployersController::class, 'explore'])->name('seeker.employers');
         Route::get('/employer-profile/{username}', [Seeker\EmployersController::class, 'profile'])->name('seeker.employer-profile');
