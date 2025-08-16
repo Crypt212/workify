@@ -14,6 +14,7 @@
     'employer_username' => [ 'label' => 'Employer Username', ],
     'employer_organization' => [ 'label' => 'Employer Oranization Name', ],
     'title' => ['label' => 'Post Title'],
+    'description' => ['label' => 'Post Description'],
     'tags' => ['label' => 'Post Tags'],
     'skills' => ['label' => 'Post Skills'],
 ]" />
@@ -67,7 +68,7 @@
                 </div>
                 @endif
                 @if($post->applied)
-                <form action="{{ route('seeker.post.unapply') }}" method="POST" class="flex justify-end items-center">
+                <form action="{{ route('seeker.post.unapply', $post->id) }}" method="POST" class="flex justify-end items-center">
                     @csrf
                     <input type="hidden" name="post_id" value="{{ $post->id }}">
                     <button type="submit" class="py-2 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition">
@@ -75,7 +76,7 @@
                     </button>
                 </form>
                 @else
-                <form action="{{ route('seeker.post.apply') }}" method="POST" class="flex justify-end items-center">
+                <form action="{{ route('seeker.post.apply', $post->id) }}" method="POST" class="flex justify-end items-center">
                     @csrf
                     <input type="hidden" name="post_id" value="{{ $post->id }}">
                     <button type="submit" class="py-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">

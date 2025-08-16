@@ -30,7 +30,7 @@
                 <sub class="text-l text-gray-400">[{{ $employer->user->username }}]</sub>
             </div>
             <p class="text-gray-600">{{ $employer->organization_name }}</p>
-            <a href="{{ url('/seeker/employer-profile/' . $employer->user->username) }}"
+            <a href="{{ route('seeker.employer-profile', $employer->user->username) }}"
                 class="inline-block mt-4 text-blue-500 hover:underline">View Profile</a>
         </div>
         @empty

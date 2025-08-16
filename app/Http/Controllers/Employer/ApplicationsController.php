@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Employer;
 
-use App\Models\Post;
 use App\Models\Message;
 use App\Models\Application;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 
@@ -23,14 +21,17 @@ class ApplicationsController
         return view('employer.applications', compact('applications'));
     }
 
-    public function accept(Request $request): RedirectResponse
+    public function accept(Application $application): RedirectResponse
     {
-        $application = Application::with(['post.employer.user', 'seeker.user'])
-            ->findOrFail($request->application_id);
+        $message_body =<<<EOF
+        Your application have been accepted for the job {$application->post->title} with this discription:
+            "{$application->post->description}".
+        contact employer with  username: [ {$application->post->employer->user->username} ] at email {$application->post->employer->user->email}.
+        EOF;
 
         Message::create([
             'title' => 'Accepted for ' . $application->post->title,
-            'body' => 'You are accepted for the job ' . $application->post->title . ' with this discription:\n"' . $application->post->description . '"\n contact employer, username: [' . $application->post->employer->user->username,
+            'body' => $message_body,
             'sender_id' => $application->post->employer->user->id,
             'receiver_id' => $application->seeker->user->id,
         ]);
@@ -40,14 +41,16 @@ class ApplicationsController
         return redirect()->back()->with('success', 'Application accepted.');
     }
 
-    public function reject(Application $request): RedirectResponse
+    public function reject(Application $application): RedirectResponse
     {
-        $application = Application::with(['post.employer.user', 'seeker.user'])
-            ->findOrFail($request->application_id);
+        $message_body =<<<EOF
+        We are sorry to inform you that your application have been rejected for the job {$application->post->title} with this discription:
+            "{$application->post->description}".
+        EOF;
 
         Message::create([
             'title' => 'Rejected for ' . $application->post->title,
-            'body' => 'You are rejected for the job ' . $application->post->title . ' with this discription:\n"' . $application->post->description . '"\n contact employer, username: [' . $application->post->employer->user->username,
+            'body' => $message_body,
             'sender_id' => $application->post->employer->user->id,
             'receiver_id' => $application->seeker->user->id,
         ]);

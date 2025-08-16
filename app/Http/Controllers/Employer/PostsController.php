@@ -59,7 +59,7 @@ class PostsController
         return view('employer.post-create');
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Post $post): RedirectResponse
     {
         Post::query()->where('id', $request->id)->forceDelete();
 
