@@ -7,6 +7,9 @@
     'title' => [
         'label' => 'Message Title',
     ],
+    'body' => [
+        'label' => 'Message Body',
+    ],
     'sender_name' => [
         'label' => 'Full Name',
     ],
@@ -36,11 +39,11 @@
                     <p class="text-sm text-gray-500">{{ $message->sender->name }}</p>
                     <p class="text-sm text-gray-500">{{ $message->sender->email }}</p>
                 </div>
-                <a href="{{ route('seeker.employer-profile', ['username' => $message->sender_username]) }}" class="text-blue-600 hover:underline">View Profile</a>
+                <a href="{{ route('seeker.employer-profile', $message->sender->username) }}" class="text-blue-600 hover:underline">View Profile</a>
 
             </div>
             <!-- Body -->
-            <p class="text-gray-700 mb-3">{{ Str::limit($message->body, 150) }}</p>
+            <p class="text-gray-700 mb-3 whitespace-pre-wrap">{{ $message->body }}</p>
             <p class="text-xs text-gray-400">Sent: {{ $message->created_at->format('Y-m-d H:i') }}</p>
         </div>
     @endforeach

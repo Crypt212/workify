@@ -3,8 +3,6 @@
         Your Applications
     </h1>
 
-    @if ($applications->count() > 0)
-
     <x-filter :filters="[
     'employer_name' => [ 'label' => 'Employer Name', ],
     'employer_username' => [ 'label' => 'Employer Username', ],
@@ -19,9 +17,8 @@
         {{ $applications->withQueryString()->links('components/paginator') }}
     </div>
 
-    <div class="mt-4">
-        {{ $applications->links('components/paginator') }}
-    </div>
+    @if ($applications->count() > 0)
+
     @foreach ($applications as $application)
     <div class="bg-white mx-auto max-w-4xl rounded-lg shadow-md my-3 p-5 relative">
         <div>
@@ -64,14 +61,14 @@
         @endif
 
         <div class="flex justify-end pt-3 space-x-2 mt-3">
-            <form action="{{ route('employer.application.accept') }}" method="POST" class="inline">
+            <form action="{{ route('employer.application.accept', $application->id) }}" method="POST" class="inline">
                 @csrf
                 <input type="hidden" name="application_id" value="{{ $application->id }}">
                 <button class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
                     Accept
                 </button>
             </form>
-            <form action="{{ route('employer.application.reject') }}" method="POST" class="inline">
+            <form action="{{ route('employer.application.reject', $application->id) }}" method="POST" class="inline">
                 @csrf
                 <input type="hidden" name="application_id" value="{{ $application->id }}">
                 <button class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
@@ -82,17 +79,15 @@
     </div>
     @endforeach
 
-    <!-- Top pagination -->
+    @else
+    <p class="text-gray-600">No applications found</p>
+    @endif
+
+    <!-- Bottom pagination -->
     <div class="mt-6">
         {{ $applications->withQueryString()->links('components/paginator') }}
     </div>
 
-    <div class="mt-4">
-        {{ $applications->links('components/paginator') }}
-    </div>
-    @else
-    <p class="text-gray-600">Yoy haven't applied yet.</p>
-    @endif
 
     </div>
 </x-wrapper>

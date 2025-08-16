@@ -17,21 +17,19 @@ class PostsController
         $query = Post::query()->with('employer.user');
 
         if ($request->has('filter')) {
-
             if (isset($request->filter['employer_name'])) {
                 $search_term = $request->filter['employer_name'];
                 $query->whereHas('employer', function ($q) use ($search_term) {
                     $q->whereHas('user', function ($q) use ($search_term) {
-
                         $q->where('name', 'like', "%{$search_term}%");
                     });
                 });
             }
+
             if (isset($request->filter['employer_username'])) {
                 $search_term = $request->filter['employer_username'];
                 $query->whereHas('employer', function ($q) use ($search_term) {
                     $q->whereHas('user', function ($q) use ($search_term) {
-
                         $q->where('username', 'like', "%{$search_term}%");
                     });
                 });
@@ -51,8 +49,8 @@ class PostsController
                 $search_tags = array_map('trim', explode(',', $search_term));
 
                 foreach ($search_tags as $search_tag) {
-                    $query->whereHas('skills', function ($query) use ($search_tag) {
-                        $query->where('name', 'like', "%{$search_tag}%");
+                    $query->whereHas('tags', function ($q) use ($search_tag) {
+                        $q->where('name', 'like', "%{$search_tag}%");
                     });
                 }
             }
@@ -61,8 +59,8 @@ class PostsController
                 $search_skills = array_map('trim', explode(',', $search_term));
 
                 foreach ($search_skills as $search_skill) {
-                    $query->whereHas('skills', function ($query) use ($search_skill) {
-                        $query->where('name', 'like', "%{$search_skill}%");
+                    $query->whereHas('skills', function ($q) use ($search_skill) {
+                        $q->where('name', 'like', "%{$search_skill}%");
                     });
                 }
             }
@@ -88,9 +86,8 @@ class PostsController
         return view('seeker.posts', compact('posts'));
     }
 
-    public function apply(Request $request): RedirectResponse
+    public function apply(Post $post): RedirectResponse
     {
-        $post = Post::query()->with(['employer', 'applications'])->where('id', $request->post_id)->first();
         $post->applications()->create([
             'seeker_id' => Auth::user()->seeker->id,
             'post_id' => $post->id,
@@ -99,9 +96,8 @@ class PostsController
         return redirect()->back()->with('success', 'Applied to job post.');
     }
 
-    public function unapply(Request $request): RedirectResponse
+    public function unapply(Post $post): RedirectResponse
     {
-        $post = Post::query()->with(['employer', 'applications'])->where('id', $request->post_id)->first();
         $application = $post->applications()->where('seeker_id', Auth::user()->seeker->id)->first();
         $application->delete();
 

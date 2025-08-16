@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Seeker;
 
-use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Models\Employer;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class EmployersController
@@ -17,27 +15,6 @@ class EmployersController
         })->first();
 
         return view('seeker.employer-profile', compact('employer'));
-    }
-
-    public function sendMessage(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-        ]);
-
-        Message::query()->create([
-            'title' => $request->title,
-            'body' => $request->body,
-            'receiver_id' => $request->receiver_id,
-            'sender_id' => $request->sender_id,
-        ]);
-
-        $receiver_username = Employer::query()->whereHas('user', function ($query) use ($request) {
-            $query->where('id', $request->receiver_id);
-        })->first()->user->username;
-
-        return redirect()->route("seeker.employer-profile", $receiver_username);
     }
 
     public function explore(Request $request): View

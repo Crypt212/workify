@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Employer;
 
 use App\Models\User;
 use App\Models\Message;
+use App\Models\Seeker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 
 class InboxController
 {
@@ -18,6 +20,10 @@ class InboxController
             if (isset($request->filter['title'])) {
                 $search_term = $request->filter['title'];
                 $query->where('title', 'like', "%{$search_term}%");
+            }
+            if (isset($request->filter['body'])) {
+                $search_term = $request->filter['body'];
+                $query->where('body', 'like', "%{$search_term}%");
             }
             if (isset($request->filter['sender_name'])) {
                 $search_term = $request->filter['sender_name'];
@@ -43,38 +49,41 @@ class InboxController
                     $q->where('contact_info', 'like', "%{$search_term}%");
                 });
             }
-            if (isset($request->filter['sender_role'])) {
-                $search_term = $request->filter['sender_role'];
+            if (isset($request->filter['sender_organization_name'])) {
+                $search_term = $request->filter['sender_organization_name'];
                 $query->whereHas('sender', function ($q) use ($search_term) {
-                    $q->whereHas('seeker', function ($q) use ($search_term) {
-                        $q->where('role', 'like', "%{$search_term}%");
+                    $q->whereHas('employer', function ($q) use ($search_term) {
+                        $q->where('organization_name', 'like', "%{$search_term}%");
                     });
                 });
-            }
-            if (isset($request->filter['sender_skills'])) {
-                $search_term = $request->filter['sender_skills'];
-                $search_skills = array_map('trim', explode(',', $search_term));
-
-                foreach ($search_skills as $search_skill) {
-                    $query->whereHas('sender', function ($q) use ($search_skill) {
-                        $q->whereHas('seeker', function ($q) use ($search_skill) {
-                            $q->whereHas('skills', function ($q) use ($search_skill) {
-                                $q->where('name', 'like', "%{$search_skill}%");
-                            });
-                        });
-                    });
-                }
             }
         }
 
         $messages = $query->latest()->paginate(5);
 
-        foreach ($messages as $message) {
-            $message->sender_username = User::query()->where('id', $message->sender->id)->first()->username;
-            $message->receiver_username = User::query()->where('id', $message->receiver->id)->first()->username;
-        }
-
 
         return view('employer.inbox', compact('messages'));
     }
+
+    public function sendMessage(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+        ]);
+
+        Message::query()->create([
+            'title' => $request->title,
+            'body' => $request->body,
+            'receiver_id' => $request->receiver_id,
+            'sender_id' => $request->sender_id,
+        ]);
+
+        $receiver_username = Seeker::query()->whereHas('user', function ($query) use ($request) {
+            $query->where('id', $request->receiver_id);
+        })->first()->user->username;
+
+        return redirect()->route("employer.seeker-profile", $receiver_username);
+    }
+
 }

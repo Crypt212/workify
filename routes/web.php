@@ -12,6 +12,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('user_type')->group(function () {
         Route::get('/dashboard', fn() => view('placeholder'))->name('dashboard');
+        Route::get('/',  fn() => view('placeholder'));
+        Route::get('/',  fn() => view('placeholder'));
 
         Route::get('/posts', fn() => view('placeholder'))->name('posts');
         Route::get('/post/create', fn() => view('placeholder'))->name('posts.create');
@@ -20,11 +22,15 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/applications', fn() => view('placeholder'))->name('applications');
 
-        Route::get('/seeker-profile/', fn() => view('placeholder'))->name('seekers');
-        Route::get('/employer-profile/', fn() => view('placeholder'))->name('employers');
+        Route::get('/employer-profile/{uesrname}', fn() => view('placeholder'))->name('employer-profile');
 
-        Route::get('/seeker-profile/{username}', [Employer\SeekersController::class, 'profile'])->name('seeker-profile');
-        Route::get('/employer-profile/{username}', [Employer\SeekersController::class, 'profile'])->name('employer-profile');
+        Route::get('/employer-profile', fn() => view('placeholder'))->name('employers');
+        Route::get('/employers',        fn() => view('placeholder'))->name('employers');
+
+        Route::get('/seeker-profile/{username}', fn() => view('placeholder'))->name('seeker-profile');
+
+        Route::get('/seeker-profile',   fn() => view('placeholder'))->name('seekers');
+        Route::get('/seekers',          fn() => view('placeholder'))->name('seekers');
 
         Route::get('/inbox', fn() => view('placeholder'))->name('inbox');
     });
@@ -32,42 +38,49 @@ Route::middleware('auth')->group(function () {
     // Actual role-specific implementations (hidden from direct access)
     Route::prefix('employer')->middleware('employer')->group(function () {
         Route::get('/dashboard', fn() => view('employer.dashboard'))->name('employer.dashboard');
+        Route::get('/',  fn() => redirect()->route('employer.dashboard'));
 
         Route::get('/inbox', [Employer\InboxController::class, 'index'])->name('employer.inbox');
 
         Route::get('/posts', [Employer\PostsController::class, 'explore'])->name('employer.posts');
         Route::get('/post/create', [Employer\PostsController::class, 'showCreate'])->name('employer.posts.create');
         Route::post('/post/create', [Employer\PostsController::class, 'store'])->name('employer.posts.store');
-        Route::post('/post/delete', [Employer\PostsController::class, 'destroy'])->name('employer.posts.destroy');
+        Route::delete('/post/delete/{post}', [Employer\PostsController::class, 'destroy'])->name('employer.posts.destroy');
 
         Route::get('/post/applications', [Employer\PostsController::class, 'explore'])->name('employer.applications');
 
         Route::get('/applications', [Employer\ApplicationsController::class, 'explore'])->name('employer.applications');
-        Route::post('/application/accept', [Employer\ApplicationsController::class, 'accept'])->name('employer.application.accept');
-        Route::post('/application/reject', [Employer\ApplicationsController::class, 'reject'])->name('employer.application.reject');
+        Route::post('/application/accept/{application}', [Employer\ApplicationsController::class, 'accept'])->name('employer.application.accept');
+        Route::post('/application/reject/{application}', [Employer\ApplicationsController::class, 'reject'])->name('employer.application.reject');
 
-        Route::get('/seeker-profile/', [Employer\SeekersController::class, 'explore'])->name('employer.seekers');
         Route::get('/seeker-profile/{username}', [Employer\SeekersController::class, 'profile'])->name('employer.seeker-profile');
-        Route::get('/seekers', [Employer\SeekersController::class, 'explore'])->name('employer.seekers');
-        Route::post('/send-message-to-seeker', [Employer\SeekersController::class, 'sendMessage'])->name('employer.seeker-profile.sendMessage');
+
+        Route::get('/seeker-profile',   fn() => redirect()->route('employer.seekers'));
+        Route::get('/seekers',          [Employer\SeekersController::class, 'explore'])->name('employer.seekers');
+
+        Route::post('/send-message', [Employer\InboxController::class, 'sendMessage'])->name('employer.seeker-profile.sendMessage');
     });
 
     Route::prefix('seeker')->middleware('seeker')->group(function () {
         Route::get('/dashboard', fn() => view('seeker.dashboard'))->name('seeker.dashboard');
+        Route::get('/',  fn() => redirect()->route('seeker.dashboard'));
 
         Route::get('/inbox', [Seeker\InboxController::class, 'index'])->name('seeker.inbox');
 
         Route::get('/applications', [Seeker\ApplicationsController::class, 'explore'])->name('seeker.applications');
-        Route::post('/application/unapply', [Seeker\ApplicationsController::class, 'unapply'])->name('seeker.application.unapply');
+        Route::delete('/application/unapply/{application}', [Seeker\ApplicationsController::class, 'unapply'])->name('seeker.application.unapply');
 
         Route::get('/posts', [Seeker\PostsController::class, 'explore'])->name('seeker.posts');
-        Route::post('/post/apply', [Seeker\PostsController::class, 'apply'])->name('seeker.post.apply');
-        Route::post('/post/unapply', [Seeker\PostsController::class, 'unapply'])->name('seeker.post.unapply');
 
-        Route::get('/employer-profile/', [Seeker\EmployersController::class, 'explore'])->name('seeker.employers');
-        Route::get('/employer-profile/{username}', [Seeker\EmployersController::class, 'profile'])->name('seeker.employer-profile');
-        Route::get('/employers', [Seeker\EmployersController::class, 'explore'])->name('seeker.employers');
-        Route::post('/send-message-to-employer', [Seeker\EmployersController::class, 'sendMessage'])->name('seeker.employer-profile.sendMessage');
+        Route::post('/post/apply/{post}', [Seeker\PostsController::class, 'apply'])->name('seeker.post.apply');
+        Route::post('/post/unapply/{post}', [Seeker\PostsController::class, 'unapply'])->name('seeker.post.unapply');
+
+        Route::get('/employer-profile/{uesrname}', [Seeker\EmployersController::class, 'profile'])->name('seeker.employer-profile');
+
+        Route::get('/employer-profile', fn() => redirect()->route('seeker.employers'));
+        Route::get('/employers',        [Seeker\EmployersController::class, 'explore'])->name('seeker.employers');
+
+        Route::post('/send-message', [Seeker\InboxController::class, 'sendMessage'])->name('seeker.employer-profile.sendMessage');
     });
 });
 

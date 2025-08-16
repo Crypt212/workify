@@ -3,16 +3,18 @@
         Your Applications
     </h1>
 
-    @if ($applications->count() > 0)
-
     <x-filter :filters="[
     'employer_name' => [ 'label' => 'Employer Name', ],
     'employer_username' => [ 'label' => 'Employer Username', ],
     'employer_organization' => [ 'label' => 'Employer Oranization Name', ],
     'title' => ['label' => 'Post Title'],
+    'description' => ['label' => 'Post Description'],
     'tags' => ['label' => 'Post Tags'],
     'skills' => ['label' => 'Post Skills'],
 ]" />
+
+    @if ($applications->count() > 0)
+
 
     <!-- Top pagination -->
     <div class="mt-6">
@@ -64,8 +66,9 @@
         @endif
 
         <div class="flex justify-end pt-3 space-x-2 mt-3">
-            <form action="{{ route('seeker.application.unapply') }}" method="POST" class="inline">
+            <form action="{{ route('seeker.application.unapply', $application->id) }}" method="POST" class="inline">
                 @csrf
+                @method('DELETE')
                 <input type="hidden" name="application_id" value="{{ $application->id }}">
                 <button class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
                     Un-Apply
@@ -84,7 +87,7 @@
         {{ $applications->links('components/paginator') }}
     </div>
     @else
-    <p class="text-gray-600">Yoy haven't applied yet.</p>
+    <p class="text-gray-600">No applications found.</p>
     @endif
 
     </div>

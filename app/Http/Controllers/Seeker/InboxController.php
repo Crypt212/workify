@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Seeker;
 
+use App\Models\Employer;
 use App\Models\User;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class InboxController
 {
@@ -18,6 +20,10 @@ class InboxController
             if (isset($request->filter['title'])) {
                 $search_term = $request->filter['title'];
                 $query->where('title', 'like', "%{$search_term}%");
+            }
+            if (isset($request->filter['body'])) {
+                $search_term = $request->filter['body'];
+                $query->where('body', 'like', "%{$search_term}%");
             }
             if (isset($request->filter['sender_name'])) {
                 $search_term = $request->filter['sender_name'];
@@ -55,12 +61,28 @@ class InboxController
 
         $messages = $query->latest()->paginate(5);
 
-        foreach($messages as $message) {
-            $message->sender_username = User::query()->where('id', $message->sender->id)->first()->username;
-            $message->receiver_username = User::query()->where('id', $message->receiver->id)->first()->username;
-        }
-
-
         return view('seeker.inbox', compact('messages'));
     }
+
+    public function sendMessage(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+        ]);
+
+        Message::query()->create([
+            'title' => $request->title,
+            'body' => $request->body,
+            'receiver_id' => $request->receiver_id,
+            'sender_id' => $request->sender_id,
+        ]);
+
+        $receiver_username = Employer::query()->whereHas('user', function ($query) use ($request) {
+            $query->where('id', $request->receiver_id);
+        })->first()->user->username;
+
+        return redirect()->route("seeker.employer-profile", $receiver_username);
+    }
+
 }

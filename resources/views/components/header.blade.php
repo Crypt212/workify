@@ -46,6 +46,13 @@
 
                             <div
                                 class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="{{ route('applications') }}" class="w-full">
+                                    Received Applications
+                                </a>
+                            </div>
+
+                            <div
+                                class="w-full inline-flex items-center p-2 text-sm leading-4 border font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 <a href="{{ route('posts') }}" class="w-full">
                                     My Job Posts
                                 </a>
