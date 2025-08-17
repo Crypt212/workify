@@ -1,21 +1,21 @@
 <div class="skill-input space-y-4" id="skillInserter">
     <!-- Hidden input that will store our skills array -->
-    <input type="hidden" name="skills" id="skillsInput" value="{{ old('skills', $skills ?? []) }}">
+    <input type="hidden" name="skills" id="skillsInput" value="{{ json_encode(old('skills', $skills ?? [])) }}">
 
     <!-- Display area for added skills -->
     <div id="skillsContainer" class="flex flex-wrap">
         @if(old('skills', $skills ?? []))
-            @foreach($skills as $index => $skill)
+            @foreach(json_decode(old('skills', json_encode($skills ?? [])), true) as $index => $skill)
                 <div class="skill-item border ml-3 mb-3 flex text-blue-500 border-blue-500 items-center justify-between px-1 py-1 bg-gray-50 rounded-md">
                     <div class="flex">
                         <span class="font-medium">{{ $skill['name'] }}</span>
                         <span class="ml-2 px-2 py-1 text-xs rounded-full
-                                     @if($skill->pivot->proficiency === 'beginner') bg-blue-100 text-blue-800
-                                     @elseif($skill->pivot->proficiency === 'intermediate') bg-green-100 text-green-800
-                                     @elseif($skill->pivot->proficiency === 'advanced') bg-yellow-100 text-yellow-800
+                                     @if($skill['pivot']['proficiency'] === 'beginner') bg-blue-100 text-blue-800
+                                     @elseif($skill['pivot']['proficiency'] === 'intermediate') bg-green-100 text-green-800
+                                     @elseif($skill['pivot']['proficiency'] === 'advanced') bg-yellow-100 text-yellow-800
                             @else bg-purple-100 text-purple-800
                             @endif">
-                            {{ ucfirst($skill->pivot->proficiency) }}
+                            {{ ucfirst($skill['pivot']['proficiency']) }}
                         </span>
                     </div>
                     <button type="button" onclick="removeSkill({{ $index }})" class="text-red-500 hover:text-red-700">
