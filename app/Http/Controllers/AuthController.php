@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Seeker;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -33,6 +34,9 @@ class AuthController
 
     public function register(Request $request): RedirectResponse
     {
+
+        $validProficiencyLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users',
@@ -42,7 +46,7 @@ class AuthController
             'password' => 'required|confirmed|min:8',
             'organization_name' => 'required_if:identity,employer',
             'role' => 'required_if:identity,seeker',
-            'skills' => 'nullable|string'
+            'skills' => 'nullable|json'
         ], [
             'name.required' => 'The full name field is required.',
             'email.required' => 'Please provide your email.',
@@ -55,7 +59,7 @@ class AuthController
             'role.required_if' => 'Please specify your professional role.'
         ]);
 
-        $user = User::query()->create([
+        $user = User::create([
             'username' => $request['username'],
             'email' => $request['email'],
             'name' => $request['name'],
@@ -64,26 +68,38 @@ class AuthController
             'password' => Hash::make($request['password']),
         ]);
 
-        if ($request['identity'] === 'employer') {
-            $user->employer()->create([
-                'organization_name' => $request['organization_name'] ?? ''
-            ]);
-        } elseif ($request['identity'] === 'seeker') {
-            $seeker = $user->seeker()->create([
-                'role' => $request['role'] ?? ''
-            ]);
+        try {
+            \DB::beginTransaction();
 
-            if (!empty($request['skills'])) {
-                $skill_names = array_map('trim', explode(',', $request['skills']));
+            if ($request['identity'] === 'employer') {
+                $user->employer()->create([
+                    'organization_name' => $request['organization_name'] ?? ''
+                ]);
+            } elseif ($request['identity'] === 'seeker') {
+                $seeker = $user->seeker()->create([
+                    'role' => $request['role'] ?? ''
+                ]);
 
-                foreach ($skill_names as $skill_name) {
-                    if ($skill_name == "") continue;
-                    $skill = Skill::query()->firstOrCreate(['name' => $skill_name]);
-                    $seeker->skills()->attach($skill->id, [
-                        'proficiency' => 'expert'
-                    ]);
+                if (!empty($request['skills'])) {
+                    $seeker = $user->seeker()->firstOrNew();
+
+                    // Decode and process the JSON skills
+                    $skillsData = json_decode($request['skills'], true);
+
+                    // Validate the decoded structure
+                    if (!is_array($skillsData)) {
+                        throw new \Exception('Invalid skills data format');
+                    }
+
+                    $this->updateSeekerSkills($seeker, $skillsData, $validProficiencyLevels);
                 }
             }
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Failed to create account: ' . $e->getMessage())
+                ->withInput();
         }
 
         Auth::login($user);
@@ -118,5 +134,34 @@ class AuthController
         $request->session()->regenerateToken();
 
         return redirect()->route("login.page");
+    }
+
+
+    protected function updateSeekerSkills(Seeker $seeker, array $skillsData, array $validProficiencyLevels)
+    {
+        $skillsToSync = [];
+
+        foreach ($skillsData as $skillData) {
+            // Skip invalid entries
+            if (!isset($skillData->name) || !isset($skillData->proficiency)) {
+                continue;
+            }
+
+            // Normalize proficiency to lowercase
+            $proficiency = strtolower($skillData->proficiency);
+
+            // Validate proficiency level
+            if (!in_array($proficiency, $validProficiencyLevels)) {
+                continue;
+            }
+
+            // Find or create the skill
+            $skill = Skill::firstOrCreate(['name' => trim($skillData->name)]);
+
+            // Add to sync array with normalized proficiency
+            $skillsToSync[$skill->id] = ['proficiency' => $proficiency];
+        }
+
+        $seeker->skills()->sync($skillsToSync);
     }
 }

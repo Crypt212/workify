@@ -16,7 +16,7 @@
             <!-- User Information Section -->
             <div class="mb-8">
                 <h3 class="text-lg font-medium mb-4 border-b pb-2">Personal Information</h3>
-                <form action="{{ route('dashboard.update') }}" method="POST">
+                <form action='{{ route("dashboard.update") }}' method="POST">
                     @csrf
                     @method('PUT')
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -79,7 +79,10 @@
                         <label class="block text-sm font-medium text-gray-700">Skills</label>
                         <div class="mt-1 p-3 border border-gray-300 rounded-md bg-gray-50">
                             <!-- Skills component placeholder -->
-                            <x-skill-proficiency-input :skills="auth()->user()->seeker->skills ?? []" />
+                            <x-skill-proficiency-input :skills="auth()->user()->seeker->skills->toArray()" />
+                            @error('skills')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     @endif

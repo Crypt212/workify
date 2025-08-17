@@ -34,7 +34,8 @@
 
             <div class="mb-4">
                 <label for="contact_info" class="block text-gray-700 mb-2">Phone Number</label>
-                <input type="text" id="contact_info" name="contact_info" pattern="(\+?[0-9]{2,3})? ?([0-9]{4})? ?([0-9]{3})? ?([0-9]{4})?" required
+                <input type="text" id="contact_info" name="contact_info"
+                    pattern="(\+?[0-9]{2,3})? ?([0-9]{4})? ?([0-9]{3})? ?([0-9]{4})?" required
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value="{{ old('contact_info') }}">
                 @error('contact_info')
@@ -110,13 +111,14 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="skills" class="block text-gray-700 mb-2">Skills (comma separated)</label>
-                    <input type="text" id="skills" name="skills"
-                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value="{{ old('skills') }}" placeholder="e.g., PHP, Laravel, JavaScript">
-                    @error('skills')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <label class="block text-sm font-medium text-gray-700">Skills</label>
+                    <div class="mt-1 p-3 border border-gray-300 rounded-md bg-gray-50">
+                        <!-- Skills component placeholder -->
+                        <x-skill-proficiency-input :skills="old('skills', [])" />
+                        @error('skills')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
 

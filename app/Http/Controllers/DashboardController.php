@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class DashboardController
@@ -18,68 +17,63 @@ class DashboardController
         return view("dashboard");
     }
 
-    public function updateProfile(Request $request)
-    {
-        $user = Auth::user();
 
-        // Define valid proficiency levels
-        $validProficiencyLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+public function updateProfile(Request $request)
+{
+    $user = Auth::user();
+    $validProficiencyLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
 
-        // Validation rules
-        $rules = [
-            'name' => 'required|string|max:255',
-            'contact_info' => 'required|string|max:255',
-        ];
+    $rules = [
+        'name' => 'required|string|max:255',
+        'contact_info' => 'required|string|max:255',
+    ];
+
+    if ($user->identity == 'seeker') {
+        $rules['role'] = 'required|string|max:255';
+        $rules['skills'] = 'required|json'; // Only json validation needed
+    } elseif ($user->identity == 'employer') {
+        $rules['organization_name'] = 'required|string|max:255';
+    }
+
+    $validatedData = $request->validate($rules);
+
+    try {
+        \DB::beginTransaction();
+
+        $user->name = $validatedData['name'];
+        $user->contact_info = $validatedData['contact_info'];
+        $user->save();
 
         if ($user->identity == 'seeker') {
-            $rules['role'] = 'required|string|max:255';
-            $rules['skills'] = 'array';
-            $rules['skills'] = 'required|json';
-        } elseif ($user->identity == 'employer') {
-            $rules['organization_name'] = 'required|string|max:255';
-        }
+            $seeker = $user->seeker()->firstOrNew();
+            $seeker->role = $validatedData['role'];
+            $seeker->save();
 
-        $validatedData = $request->validate($rules);
+            // Decode skills JSON
+            $skillsData = json_decode($validatedData['skills']);
 
-        try {
-            \DB::beginTransaction();
-
-            // Update user data
-            $user->name = $validatedData['name'];
-            $user->contact_info = $validatedData['contact_info'];
-            $user->save();
-
-            if ($user->identity == 'seeker') {
-                $seeker = $user->seeker()->firstOrNew();
-                $seeker->role = $validatedData['role'];
-                $seeker->save();
-
-                // Decode and process the JSON skills
-                $skillsData = json_decode($validatedData['skills'], true);
-
-                // Additional validation for decoded JSON
-                if (!is_array($skillsData)) {
-                    throw new \Exception('Invalid skills data format');
-                }
-
-                $this->updateSeekerSkillsFromJson($seeker, $skillsData, $validProficiencyLevels);
-            }
-            elseif ($user->identity == 'employer') {
-                $employer = $user->employer()->firstOrNew();
-                $employer->organization_name = $validatedData['organization_name'];
-                $employer->save();
+            if (!is_array($skillsData)) {
+                throw new \Exception('Invalid skills data format');
             }
 
-            \DB::commit();
-
-            return redirect()->back()->with('success', 'Profile updated successfully!');
-        } catch (\Exception $e) {
-            \DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Failed to update profile: ' . $e->getMessage())
-                ->withInput();
+            // Process skills with normalized proficiency
+            $this->updateSeekerSkills($seeker, $skillsData, $validProficiencyLevels);
         }
+        elseif ($user->identity == 'employer') {
+            $employer = $user->employer()->firstOrNew();
+            $employer->organization_name = $validatedData['organization_name'];
+            $employer->save();
+        }
+
+        \DB::commit();
+        return redirect()->back()->with('success', 'Profile updated successfully!');
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Update failed: ' . $e->getMessage())
+            ->withInput();
     }
+}
 
     // Update password method
     public function updatePassword(Request $request): RedirectResponse
@@ -105,24 +99,31 @@ class DashboardController
         }
     }
 
-    protected function updateSeekerSkillsFromJson(Seeker $seeker, array $skillsData, array $validProficiencyLevels)
+    protected function updateSeekerSkills(Seeker $seeker, array $skillsData, array $validProficiencyLevels)
     {
         $skillsToSync = [];
 
         foreach ($skillsData as $skillData) {
-            // Validate each skill item structure
-            if (!isset($skillData['name']) || !isset($skillData['proficiency'])) {
-                continue; // or throw exception if you want strict validation
+            // Skip invalid entries
+            if (!isset($skillData->name) || !isset($skillData->proficiency)) {
+                continue;
+            }
+
+            // Normalize proficiency to lowercase
+            $proficiency = strtolower($skillData->proficiency);
+
+            // Validate proficiency level
+            if (!in_array($proficiency, $validProficiencyLevels)) {
+                continue;
             }
 
             // Find or create the skill
-            $skill = Skill::firstOrCreate(['name' => $skillData['name']]);
+            $skill = Skill::firstOrCreate(['name' => trim($skillData->name)]);
 
-            // Add to sync array with proficiency
-            $skillsToSync[$skill->id] = ['proficiency' => $skillData['proficiency']];
+            // Add to sync array with normalized proficiency
+            $skillsToSync[$skill->id] = ['proficiency' => $proficiency];
         }
 
-        // Sync the skills with proficiency
         $seeker->skills()->sync($skillsToSync);
     }
 }
